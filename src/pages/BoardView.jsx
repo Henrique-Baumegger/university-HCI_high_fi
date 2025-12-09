@@ -110,17 +110,27 @@ const BoardView = () => {
     };
 
     const handleDeleteCard = (deckId, cardIndex) => {
+        const deckNode = board.nodes.find(n => n.id === deckId);
+        if (!deckNode || !deckNode.cards || deckNode.cards.length <= cardIndex) return;
+
+        const cardToDelete = deckNode.cards[cardIndex];
+        const cardId = cardToDelete.id;
+
         const updatedNodes = board.nodes.map(n => {
             if (n.id === deckId) {
                 const newCards = [...(n.cards || [])];
-                if (newCards.length > cardIndex) {
-                    newCards.splice(cardIndex, 1);
-                }
+                newCards.splice(cardIndex, 1);
                 return { ...n, cards: newCards };
             }
             return n;
         });
-        const updatedBoard = { ...board, nodes: updatedNodes };
+
+        // Filter out links associated with this card
+        const updatedLinks = (board.cardLinks || []).filter(l =>
+            l.sourceCardId !== cardId && l.targetCardId !== cardId
+        );
+
+        const updatedBoard = { ...board, nodes: updatedNodes, cardLinks: updatedLinks };
         setBoard(updatedBoard);
         setBoards(boards.map(b => b.id === board.id ? updatedBoard : b));
     };
@@ -636,6 +646,13 @@ const BoardView = () => {
                             onAddCard={handleAddCardToDeck}
                             onDeleteCard={handleDeleteCard}
                             onAddLink={handleAddLink}
+                            cardLinks={board.cardLinks || []}
+                            onDeleteLink={(linkId) => {
+                                const updatedLinks = (board.cardLinks || []).filter(l => l.id !== linkId);
+                                const updatedBoard = { ...board, cardLinks: updatedLinks };
+                                setBoard(updatedBoard);
+                                setBoards(boards.map(b => b.id === board.id ? updatedBoard : b));
+                            }}
                         />
                     </div>
                 )}
@@ -663,7 +680,10 @@ const BoardView = () => {
 
             {/* Toolbar / FABs */}
             {mode === 'edit' && (
-                <div className="fixed bottom-8 right-8 flex flex-col gap-4">
+                <div
+                    className={`fixed bottom-8 flex flex-col gap-4 transition-all duration-300 ease-in-out`}
+                    style={{ right: editingDeckId ? '24rem' : '2rem' }} // Shift to the left of the 80 (20rem) + padding sidebar
+                >
                     {/* Add Deck Button */}
                     <button
                         onClick={handleAddNode}

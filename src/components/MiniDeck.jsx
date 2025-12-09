@@ -83,7 +83,7 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
                             </>
                         )}
 
-                        {isEditable ? (
+                        {isEditable && cards.length > 0 ? (
                             <div className="w-full h-full flex flex-col items-center justify-center mt-2">
                                 <textarea
                                     value={isFlipped ? currentCard?.back || '' : currentCard?.front || ''}
