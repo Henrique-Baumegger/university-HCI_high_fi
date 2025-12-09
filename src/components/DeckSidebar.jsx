@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDeleteCard, onAddLink, cardLinks, onDeleteLink }) => {
+const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDeleteCard, onAddLink, cardLinks, onDeleteLink, onDeleteDeck }) => {
     const [linkingCardId, setLinkingCardId] = useState(null);
     const [selectedDeckId, setSelectedDeckId] = useState('');
     const [selectedCardId, setSelectedCardId] = useState('');
@@ -22,13 +22,31 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
 
     return (
         <div
-            className="fixed right-0 top-0 bottom-0 w-80 bg-white dark:bg-gray-800 border-l border-black dark:border-gray-600 shadow-xl z-40 flex flex-col transform transition-transform duration-300 ease-in-out"
+            className="fixed right-0 top-0 bottom-0 w-[420px] bg-white dark:bg-gray-800 border-l border-black dark:border-gray-600 shadow-xl z-40 flex flex-col transform transition-transform duration-300 ease-in-out"
             onMouseDown={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
         >
             {/* Header */}
             <div className="p-4 border-b border-black dark:border-gray-600 flex justify-between items-center bg-[#F9F5FF] dark:bg-gray-900">
-                <h2 className="font-serif text-xl font-bold truncate dark:text-white">{deck.content}</h2>
-                <button onClick={onClose} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full dark:text-white">
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <h2 className="font-serif text-xl font-bold break-words whitespace-normal dark:text-white pr-2 min-w-0">{deck.content}</h2>
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Are you sure you want to delete this deck?")) {
+                                onDeleteDeck(deck.id);
+                                onClose();
+                            }
+                        }}
+                        className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full text-red-500 hover:text-red-700 dark:hover:text-red-400 shrink-0 transition-colors"
+                        title="Delete Deck"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+                <button onClick={onClose} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full dark:text-white shrink-0">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -75,7 +93,7 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
                                     value={card.front}
                                     onChange={(e) => onUpdateCard(deck.id, card.id, 'front', e.target.value)}
                                     className="w-full border border-gray-300 dark:border-gray-500 rounded p-2 text-sm font-serif resize-none focus:border-black dark:focus:border-white outline-none bg-white dark:bg-gray-600 dark:text-white"
-                                    rows="2"
+                                    rows="5"
                                 />
                             </div>
                             <div>
@@ -84,7 +102,7 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
                                     value={card.back}
                                     onChange={(e) => onUpdateCard(deck.id, card.id, 'back', e.target.value)}
                                     className="w-full border border-gray-300 dark:border-gray-500 rounded p-2 text-sm font-serif resize-none focus:border-black dark:focus:border-white outline-none bg-white dark:bg-gray-600 dark:text-white"
-                                    rows="2"
+                                    rows="5"
                                 />
                             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard }) => {
+const MiniDeck = ({ node, isEditable, isSelected, isScaleExpanded, onUpdateContent, onUpdateCard }) => {
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
 
@@ -8,7 +8,7 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
     const currentCard = cards[currentCardIndex];
 
     const handleNext = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         if (cards.length > 0) {
             setCurrentCardIndex((prev) => (prev + 1) % cards.length);
             setIsFlipped(false);
@@ -16,7 +16,7 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
     };
 
     const handlePrev = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         if (cards.length > 0) {
             setCurrentCardIndex((prev) => (prev - 1 + cards.length) % cards.length);
             setIsFlipped(false);
@@ -25,6 +25,23 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
 
     const handleFlip = () => {
         setIsFlipped(!isFlipped);
+    };
+
+    const handleDeckClick = (e) => {
+        if (!isEditable) {
+            // Play Logic
+            if (isScaleExpanded) {
+                // If Expanded: Front -> Flip, Back -> Next
+                if (!isFlipped) {
+                    handleFlip();
+                } else {
+                    handleNext();
+                }
+            } else {
+                // Not Expanded: Just flip (legacy behavior, or allow parent to handle expansion)
+                handleFlip();
+            }
+        }
     };
 
     const handleContentChange = (e) => {
@@ -36,40 +53,54 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
 
     return (
         <div
-            className="flex items-center justify-center gap-2"
+            className={`relative flex items-center justify-center transition-transform duration-300 ease-in-out ${isScaleExpanded ? 'scale-[1.8] z-50' : ''}`}
+            onMouseDown={(e) => {
+                if (!isEditable) {
+                    e.stopPropagation();
+                }
+            }}
         >
-            {/* Left Arrow */}
-            <button onClick={handlePrev} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full dark:text-white">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+
+            {/* Left Arrow Bar */}
+            <button
+                onClick={handlePrev}
+                className="absolute -left-8 top-0 bottom-0 w-8 flex items-center justify-center hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded-l-lg dark:text-white transition-colors z-10 group/arrow"
+            >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="opacity-50 group-hover/arrow:opacity-100">
                     <path d="M15 18l-6-6 6-6" />
                 </svg>
             </button>
 
             {/* Card Container */}
             <div className="relative">
-                <div className="border border-black dark:border-gray-600 bg-white dark:bg-gray-800 w-48 h-32 flex flex-col relative transition-colors">
+                <div className={`border bg-white dark:bg-gray-800 w-64 h-48 flex flex-col relative transition-all duration-200 
+                    ${isSelected ? 'border-2 border-blue-500 shadow-xl ring-2 ring-blue-200 dark:ring-blue-900' :
+                        isScaleExpanded ? 'border-emerald-400 border-2 shadow-2xl shadow-emerald-100/50 dark:shadow-emerald-900/20' : 'border-black dark:border-gray-600'}
+                `}>
                     {/* Header/Title Area */}
-                    <div className="h-8 border-b border-black dark:border-gray-600 flex items-center justify-between bg-white dark:bg-gray-800 px-2 transition-colors">
+                    <div className={`min-h-[2rem] border-b flex items-center justify-between px-2 transition-colors
+                        ${isScaleExpanded ? 'bg-emerald-50/30 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' : 'bg-white dark:bg-gray-800 border-black dark:border-gray-600'}
+                    `}>
                         {isEditable ? (
-                            <input
-                                type="text"
+                            <textarea
                                 value={node.content}
                                 onChange={(e) => onUpdateContent(e.target.value)}
-                                className="text-xs text-center w-full bg-transparent outline-none font-bold dark:text-white"
+                                className="text-xs text-center w-full bg-transparent outline-none font-bold dark:text-white break-words whitespace-normal resize-none h-full overflow-hidden flex items-center justify-center pt-1"
                                 placeholder="Deck Title"
+                                rows={2}
                             />
                         ) : (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-bold truncate max-w-[80%]">{node.content}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-bold whitespace-normal leading-tight max-w-[80%] block">{node.content}</span>
                         )}
-                        <span className="text-[10px] text-gray-400 font-serif whitespace-nowrap ml-1">
+                        <span className="text-[10px] text-gray-400 font-serif whitespace-nowrap ml-1 shrink-0">
                             {cards.length} cards
                         </span>
                     </div>
 
                     {/* Card Content */}
                     <div
-                        className="flex-1 flex items-center justify-center p-4 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 relative group transition-colors"
-                        onClick={!isEditable ? handleFlip : undefined}
+                        className="flex-1 flex items-center justify-center p-6 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 relative group transition-colors overflow-hidden"
+                        onClick={!isEditable ? handleDeckClick : undefined}
                     >
                         {/* Indicators */}
                         {cards.length > 0 && (
@@ -90,7 +121,7 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
                                     onChange={handleContentChange}
                                     className="w-full h-full text-center font-serif text-sm resize-none bg-transparent outline-none dark:text-white"
                                     placeholder={isFlipped ? "Back (Answer)" : "Front (Question)"}
-                                    onClick={(e) => e.stopPropagation()}
+                                    onClick={(!isEditable) ? (e) => { e.stopPropagation(); } : undefined}
                                 />
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleFlip(); }}
@@ -100,32 +131,23 @@ const MiniDeck = ({ node, onMenuClick, isEditable, onUpdateContent, onUpdateCard
                                 </button>
                             </div>
                         ) : (
-                            <p className="font-serif text-lg leading-tight select-none mt-2 dark:text-white">
+                            <p className="font-serif text-base leading-relaxed select-none mt-2 dark:text-white break-words w-full px-2">
                                 {cards.length > 0 ? (isFlipped ? currentCard?.back : currentCard?.front) : "Empty Deck"}
                             </p>
                         )}
                     </div>
-
-                    {/* Menu Trigger */}
-                    <button
-                        className="absolute -bottom-8 right-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white rounded-full"
-                        onClick={(e) => onMenuClick(e, node, currentCardIndex)}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="1" />
-                            <circle cx="5" cy="12" r="1" />
-                            <circle cx="19" cy="12" r="1" />
-                        </svg>
-                    </button>
                 </div>
 
                 {/* Stack effect (visual only) */}
-                <div className="absolute top-1 left-1 w-48 h-32 border border-black dark:border-gray-600 bg-white dark:bg-gray-800 -z-10 transition-colors"></div>
+                <div className="absolute top-1 left-1 w-64 h-48 border border-black dark:border-gray-600 bg-white dark:bg-gray-800 -z-10 transition-colors"></div>
             </div>
 
-            {/* Right Arrow */}
-            <button onClick={handleNext} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full dark:text-white">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {/* Right Arrow Bar */}
+            <button
+                onClick={handleNext}
+                className="absolute -right-8 top-0 bottom-0 w-8 flex items-center justify-center hover:bg-gray-200/50 dark:hover:bg-gray-700/50 rounded-r-lg dark:text-white transition-colors z-10 group/arrow"
+            >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="opacity-50 group-hover/arrow:opacity-100">
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </button>

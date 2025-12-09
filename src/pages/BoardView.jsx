@@ -145,7 +145,7 @@ const BoardView = () => {
         const newNode = {
             id: `exposed - ${Date.now()} `,
             type: 'exposed', // Using 'exposed' type to match ExposedCard component usage
-            x: deckNode.x + 220, // Position it to the right of the deck
+            x: deckNode.x + 280, // Position it to the right of the deck (w-64 = 256 + gap)
             y: deckNode.y,
             content: card.front, // Expose the question/front
             cards: []
@@ -220,6 +220,25 @@ const BoardView = () => {
             setActiveDeckId(node.id);
             setCurrentCardIndex(0);
             setIsCardFlipped(false);
+
+            // Center Camera Logic
+            // Viewport dimensions (approximated or via window)
+            const viewportW = window.innerWidth;
+            const viewportH = window.innerHeight;
+
+            // Adjust for offsets. Node position is top-left.
+            // Center of node (w-64=256, h-48=192). half is 128, 96.
+            const nodeCenterX = node.x + 128;
+            const nodeCenterY = node.y + 96;
+
+            // Goal: (nodeCenterX * zoom) + panX = viewportW / 2
+            // panX = (viewportW / 2) - (nodeCenterX * zoom)
+
+            setPan({
+                x: (viewportW / 2) - (nodeCenterX * zoom),
+                y: (viewportH / 2) - (nodeCenterY * zoom)
+            });
+
         } else if (mode === 'edit' && node.type === 'deck') {
             setEditingDeckId(node.id);
         }
@@ -286,6 +305,11 @@ const BoardView = () => {
         setIsPanning(true);
         setDragStart({ x: e.clientX, y: e.clientY });
         setStartVal({ x: pan.x, y: pan.y });
+
+        // If in play mode and a deck is active, click outside resets it
+        if (mode === 'play' && activeDeckId) {
+            setActiveDeckId(null);
+        }
     };
 
     const handleMouseMove = (e) => {
@@ -380,10 +404,10 @@ const BoardView = () => {
                             return (
                                 <line
                                     key={edge.id}
-                                    x1={start.x + 100}
-                                    y1={start.y + 60}
-                                    x2={end.x + 100}
-                                    y2={end.y + 60}
+                                    x1={start.x + 128}
+                                    y1={start.y + 96}
+                                    x2={end.x + 128}
+                                    y2={end.y + 96}
                                     stroke="black"
                                     strokeWidth="2"
                                     markerEnd="url(#arrowhead)"
@@ -412,16 +436,16 @@ const BoardView = () => {
                                 };
                             });
 
-                            const midX = (conn.source.x + 100 + conn.target.x + 100) / 2;
-                            const midY = (conn.source.y + 60 + conn.target.y + 60) / 2;
+                            const midX = (conn.source.x + 128 + conn.target.x + 128) / 2;
+                            const midY = (conn.source.y + 96 + conn.target.y + 96) / 2;
 
                             return (
                                 <g key={`link-group-${idx}`}>
                                     <line
-                                        x1={conn.source.x + 100}
-                                        y1={conn.source.y + 60}
-                                        x2={conn.target.x + 100}
-                                        y2={conn.target.y + 60}
+                                        x1={conn.source.x + 128}
+                                        y1={conn.source.y + 96}
+                                        x2={conn.target.x + 128}
+                                        y2={conn.target.y + 96}
                                         stroke="red"
                                         strokeWidth="3"
                                         strokeDasharray="5,5"
@@ -430,11 +454,11 @@ const BoardView = () => {
                                         <div className="flex flex-row justify-center items-center gap-8 h-full w-full">
                                             {linkPairs.map((pair, pIdx) => (
                                                 <div key={pIdx} className="flex flex-col items-center">
-                                                    <div className="bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded text-xs font-serif border border-red-200 dark:border-red-900 shadow-sm whitespace-nowrap max-w-[150px] overflow-hidden text-ellipsis dark:text-white">
+                                                    <div className="bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded text-xs font-serif border border-red-200 dark:border-red-900 shadow-sm overflow-hidden text-center max-w-[200px] break-words dark:text-white">
                                                         {pair.top}
                                                     </div>
                                                     <div className="h-8 w-0.5 bg-red-400 opacity-50"></div>
-                                                    <div className="bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded text-xs font-serif border border-red-200 dark:border-red-900 shadow-sm whitespace-nowrap max-w-[150px] overflow-hidden text-ellipsis dark:text-white">
+                                                    <div className="bg-white/90 dark:bg-gray-800/90 px-2 py-1 rounded text-xs font-serif border border-red-200 dark:border-red-900 shadow-sm overflow-hidden text-center max-w-[200px] break-words dark:text-white">
                                                         {pair.bottom}
                                                     </div>
                                                 </div>
@@ -487,9 +511,10 @@ const BoardView = () => {
                                 <MiniDeck
                                     node={node}
                                     isEditable={mode === 'edit'}
+                                    isSelected={editingDeckId === node.id && mode === 'edit'}
+                                    isScaleExpanded={activeDeckId === node.id && mode === 'play'}
                                     onUpdateContent={(newContent) => handleUpdateNodeContent(node.id, newContent)}
                                     onUpdateCard={(cardId, field, value) => handleUpdateCard(node.id, cardId, field, value)}
-                                    onMenuClick={(e, cardIndex) => handleMenuClick(e, node, cardIndex)}
                                 />
                             </div>
                         );
@@ -498,142 +523,9 @@ const BoardView = () => {
 
                 {/* Fixed UI Layers */}
 
-                {/* Play Mode Overlay */}
-                {mode === 'play' && activeDeckId && (
-                    <div className="absolute inset-0 z-50 bg-[#F9F5FF] dark:bg-gray-900 flex flex-col items-center justify-center p-8">
-                        <div className="w-full max-w-4xl flex justify-between items-start mb-8">
-                            <h2 className="text-2xl font-serif dark:text-white">{board.nodes.find(n => n.id === activeDeckId)?.content}</h2>
-                            <button onClick={() => setActiveDeckId(null)} className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-                        </div>
 
-                        {/* Progress */}
-                        <div className="mb-4 font-serif text-gray-500 dark:text-gray-400">
-                            Card {currentCardIndex + 1} of {board.nodes.find(n => n.id === activeDeckId)?.cards.length}
-                        </div>
 
-                        {/* Card Area */}
-                        {(() => {
-                            const activeNode = board.nodes.find(n => n.id === activeDeckId);
-                            const card = activeNode?.cards[currentCardIndex];
-                            if (!card) return null;
 
-                            const outgoingLink = board.cardLinks?.find(l => l.sourceDeckId === activeDeckId && l.sourceCardId === card.id);
-                            const handleGoToLink = () => {
-                                if (outgoingLink) {
-                                    const targetDeck = board.nodes.find(n => n.id === outgoingLink.targetDeckId);
-                                    if (targetDeck) {
-                                        const targetCardIndex = targetDeck.cards.findIndex(c => c.id === outgoingLink.targetCardId);
-                                        if (targetCardIndex !== -1) {
-                                            setActiveDeckId(outgoingLink.targetDeckId);
-                                            setCurrentCardIndex(targetCardIndex);
-                                            setIsCardFlipped(false);
-                                        }
-                                    }
-                                }
-                            };
-
-                            return (
-                                <div className="flex flex-col items-center gap-8 w-full max-w-2xl">
-                                    {/* Question Card */}
-                                    <div
-                                        className={`w-full bg-white dark:bg-gray-800 border-2 border-black dark:border-gray-600 rounded-xl p-12 min-h-[300px] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 ${isCardFlipped ? 'hidden' : 'block'}`}
-                                        onClick={() => setIsCardFlipped(true)}
-                                    >
-                                        <h3 className="font-serif text-3xl dark:text-white">{card.front}</h3>
-                                        <p className="mt-4 text-gray-400 text-sm">(Click to reveal answer)</p>
-
-                                        {/* Linked Card Indicator */}
-                                        {outgoingLink && (
-                                            <div className="mt-4 flex items-center gap-1 text-blue-500 text-sm">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                                                </svg>
-                                                Has linked card
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Answer Card */}
-                                    {isCardFlipped && (
-                                        <div className="w-full bg-white dark:bg-gray-800 border-2 border-blue-500 rounded-xl p-12 min-h-[300px] flex flex-col items-center justify-center text-center relative">
-                                            <div className="absolute top-4 left-4 text-blue-500 font-serif text-sm">Answer</div>
-                                            <h3 className="font-serif text-3xl dark:text-white">{card.back}</h3>
-
-                                            {/* Linked Card Button */}
-                                            {outgoingLink && (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleGoToLink(); }}
-                                                    className="mt-6 flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors font-serif"
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                                                    </svg>
-                                                    Go to linked card
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Feedback Buttons */}
-                                    {isCardFlipped && (
-                                        <div className="flex gap-4 w-full">
-                                            <button onClick={() => handleFeedback('knew')} className="flex-1 py-4 bg-green-100 border-2 border-green-600 text-green-800 font-serif text-lg rounded-lg hover:bg-green-200 transition-colors">I knew it</button>
-                                            <button onClick={() => handleFeedback('almost')} className="flex-1 py-4 bg-yellow-100 border-2 border-yellow-600 text-yellow-800 font-serif text-lg rounded-lg hover:bg-yellow-200 transition-colors">Almost got it</button>
-                                            <button onClick={() => handleFeedback('learning')} className="flex-1 py-4 bg-red-100 border-2 border-red-600 text-red-800 font-serif text-lg rounded-lg hover:bg-red-200 transition-colors">Still learning</button>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })()}
-                    </div>
-                )}
-
-                {/* Context Menu */}
-                {menuOpen && (
-                    <div
-                        className="fixed bg-white dark:bg-gray-800 border border-black dark:border-gray-600 shadow-lg z-50 w-56 flex flex-col"
-                        style={{ left: menuOpen.x, top: menuOpen.y }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {!isReadOnly && (
-                            <>
-                                <button
-                                    onClick={() => { handleAddCardToDeck(menuOpen.nodeId); closeMenu(); }}
-                                    className="text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 font-serif dark:text-white"
-                                >
-                                    Add card
-                                </button>
-                                <button
-                                    onClick={() => { handleDeleteCard(menuOpen.nodeId, menuOpen.cardIndex); closeMenu(); }}
-                                    className="text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 font-serif dark:text-white"
-                                >
-                                    Delete current card
-                                </button>
-                            </>
-                        )}
-                        <button
-                            onClick={() => { handleExposeCard(menuOpen.nodeId, menuOpen.cardIndex); closeMenu(); }}
-                            className="text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 font-serif dark:text-white"
-                        >
-                            Expose current card
-                        </button>
-                        {!isReadOnly && (
-                            <button
-                                onClick={() => { handleDeleteNode(menuOpen.nodeId); closeMenu(); }}
-                                className="text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 font-serif"
-                            >
-                                Delete deck
-                            </button>
-                        )}
-                    </div>
-                )}
 
                 {/* Deck Sidebar */}
                 {mode === 'edit' && editingDeckId && !isReadOnly && (
@@ -653,6 +545,7 @@ const BoardView = () => {
                                 setBoard(updatedBoard);
                                 setBoards(boards.map(b => b.id === board.id ? updatedBoard : b));
                             }}
+                            onDeleteDeck={handleDeleteNode}
                         />
                     </div>
                 )}
@@ -682,7 +575,7 @@ const BoardView = () => {
             {mode === 'edit' && (
                 <div
                     className={`fixed bottom-8 flex flex-col gap-4 transition-all duration-300 ease-in-out`}
-                    style={{ right: editingDeckId ? '24rem' : '2rem' }} // Shift to the left of the 80 (20rem) + padding sidebar
+                    style={{ right: editingDeckId ? '28rem' : '2rem' }} // Shift to the left of the 420px + padding sidebar
                 >
                     {/* Add Deck Button */}
                     <button
