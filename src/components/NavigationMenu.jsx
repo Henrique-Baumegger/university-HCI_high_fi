@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsPopup from './SettingsPopup';
+import MiniDeck from './MiniDeck';
 
 const NavigationMenu = ({ onClose }) => {
     const navigate = useNavigate();
@@ -70,20 +71,96 @@ const NavigationMenu = ({ onClose }) => {
                 </button>
             </div>
 
-            {/* About Dialog */}
+            {/* Help Dialog */}
             {showAbout && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={() => setShowAbout(false)}>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-black dark:border-white max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
-                        <h3 className="font-serif text-xl mb-4 border-b border-black dark:border-white pb-2 dark:text-white">About</h3>
-                        <p className="font-serif mb-4 dark:text-white">
-                            Done with Antigravity, from Group 5 of course HCI in winter semester 2025, implemented with node and so on...
-                        </p>
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 overflow-y-auto py-10" onClick={() => setShowAbout(false)}>
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-lg border border-black dark:border-white w-full max-w-4xl shadow-xl relative" onClick={e => e.stopPropagation()}>
                         <button
                             onClick={() => setShowAbout(false)}
-                            className="w-full bg-black text-white dark:bg-white dark:text-black py-2 font-serif hover:bg-gray-800 dark:hover:bg-gray-200"
+                            className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
                         >
-                            Close
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="dark:text-white">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
                         </button>
+
+                        <h3 className="font-serif text-2xl mb-6 border-b border-black dark:border-white pb-4 dark:text-white">Help</h3>
+
+                        <div className="space-y-4 font-serif text-lg dark:text-gray-200 mb-8">
+                            <ul className="list-disc pl-6 space-y-3">
+                                <li>You play, create and find boards.</li>
+                                <li>A board consists of multiple decks, similar to nodes in a graph.</li>
+                                <li>Each one of those decks can store multiple double-sided flashcards.</li>
+                                <li>Cards between different decks can be linked, thus making and edge between those cards and their respective decks. This feature allows the user to connect concepts together.</li>
+                            </ul>
+                        </div>
+
+                        {/* Visualization */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-8 mt-4">
+                            <div className="relative h-72 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 w-full overflow-hidden flex items-center justify-center">
+
+                                {/* Connection Line & Smart Edge Bubbles */}
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                                    <svg className="absolute w-full h-full overflow-visible">
+                                        <line
+                                            x1="25%" y1="50%"
+                                            x2="75%" y2="50%"
+                                            stroke="red"
+                                            strokeWidth="3"
+                                            strokeDasharray="5,5"
+                                        />
+                                    </svg>
+
+                                    {/* Smart Edge Bubbles Container */}
+                                    <div className="flex flex-col items-center justify-center bg-transparent z-10 scale-90">
+                                        <div className="bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded text-xs font-serif border border-red-200 dark:border-red-900 shadow-sm overflow-hidden text-center min-w-[120px] dark:text-white">
+                                            Concept A
+                                        </div>
+                                        <div className="h-8 w-0.5 bg-red-400 opacity-50"></div>
+                                        <div className="bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded text-xs font-serif border border-red-200 dark:border-red-900 shadow-sm overflow-hidden text-center min-w-[120px] dark:text-white">
+                                            Concept B
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Deck 1 */}
+                                <div className="absolute left-[10%] transform scale-[0.6] cursor-pointer hover:scale-[0.65] transition-transform z-10 origin-center">
+                                    <MiniDeck
+                                        node={{
+                                            id: 'demo-1',
+                                            content: 'Deck 1',
+                                            cards: [
+                                                { id: 'd1-c1', front: 'Concept A', back: 'Answer on the back' },
+                                                { id: 'd1-c2', front: 'Other Card', back: 'Answer on the back' }
+                                            ]
+                                        }}
+                                        isEditable={false}
+                                        isSelected={false}
+                                        isScaleExpanded={false}
+                                        forceActive={true}
+                                    />
+                                </div>
+
+                                {/* Deck 2 */}
+                                <div className="absolute right-[10%] transform scale-[0.6] cursor-pointer hover:scale-[0.65] transition-transform z-10 origin-center">
+                                    <MiniDeck
+                                        node={{
+                                            id: 'demo-2',
+                                            content: 'Deck 2',
+                                            cards: [
+                                                { id: 'd2-c1', front: 'Concept B', back: 'Answer on the back' },
+                                                { id: 'd2-c2', front: 'Yet another card', back: 'Answer on the back' }
+                                            ]
+                                        }}
+                                        isEditable={false}
+                                        isSelected={false}
+                                        isScaleExpanded={false}
+                                        forceActive={true}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

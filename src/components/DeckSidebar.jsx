@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDeleteCard, onAddLink, cardLinks, onDeleteLink, onDeleteDeck }) => {
+const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDeleteCard, onAddLink, cardLinks, onDeleteLink, onDeleteDeck, onUpdateContent }) => {
     const [linkingCardId, setLinkingCardId] = useState(null);
     const [selectedDeckId, setSelectedDeckId] = useState('');
     const [selectedCardId, setSelectedCardId] = useState('');
@@ -22,14 +22,19 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
 
     return (
         <div
-            className="fixed right-0 top-0 bottom-0 w-[420px] bg-white dark:bg-gray-800 border-l border-black dark:border-gray-600 shadow-xl z-40 flex flex-col transform transition-transform duration-300 ease-in-out"
+            className="fixed right-0 top-0 bottom-0 w-[600px] bg-white dark:bg-gray-800 border-l border-black dark:border-gray-600 shadow-xl z-40 flex flex-col transform transition-transform duration-300 ease-in-out"
             onMouseDown={(e) => e.stopPropagation()}
             onWheel={(e) => e.stopPropagation()}
         >
             {/* Header */}
             <div className="p-4 border-b border-black dark:border-gray-600 flex justify-between items-center bg-[#F9F5FF] dark:bg-gray-900">
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <h2 className="font-serif text-xl font-bold break-words whitespace-normal dark:text-white pr-2 min-w-0">{deck.content}</h2>
+                <div className="flex items-center gap-2 overflow-hidden flex-1 mr-4">
+                    <input
+                        value={deck.content}
+                        onChange={(e) => onUpdateContent && onUpdateContent(e.target.value)}
+                        className="font-serif text-xl font-bold bg-transparent border-b border-transparent hover:border-black dark:hover:border-white focus:border-black dark:focus:border-white outline-none w-full dark:text-white"
+                        placeholder="Deck Title"
+                    />
                     <button
                         onClick={() => {
                             if (window.confirm("Are you sure you want to delete this deck?")) {
@@ -93,7 +98,8 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
                                     value={card.front}
                                     onChange={(e) => onUpdateCard(deck.id, card.id, 'front', e.target.value)}
                                     className="w-full border border-gray-300 dark:border-gray-500 rounded p-2 text-sm font-serif resize-none focus:border-black dark:focus:border-white outline-none bg-white dark:bg-gray-600 dark:text-white"
-                                    rows="5"
+                                    rows="3"
+                                    placeholder="New Question"
                                 />
                             </div>
                             <div>
@@ -102,7 +108,8 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
                                     value={card.back}
                                     onChange={(e) => onUpdateCard(deck.id, card.id, 'back', e.target.value)}
                                     className="w-full border border-gray-300 dark:border-gray-500 rounded p-2 text-sm font-serif resize-none focus:border-black dark:focus:border-white outline-none bg-white dark:bg-gray-600 dark:text-white"
-                                    rows="5"
+                                    rows="3"
+                                    placeholder="New Answer"
                                 />
                             </div>
 

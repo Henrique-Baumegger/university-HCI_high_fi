@@ -99,7 +99,7 @@ const BoardView = () => {
     const handleAddCardToDeck = (deckId) => {
         const updatedNodes = board.nodes.map(n => {
             if (n.id === deckId) {
-                const newCard = { id: `c - ${Date.now()} `, front: 'New Question', back: 'New Answer' };
+                const newCard = { id: `c - ${Date.now()} `, front: '', back: '' };
                 return { ...n, cards: [...(n.cards || []), newCard] };
             }
             return n;
@@ -256,6 +256,28 @@ const BoardView = () => {
         }
     };
 
+    const [jumpRequest, setJumpRequest] = useState(null); // { deckId, cardId }
+
+    const handleJumpToLink = (targetDeckId, targetCardId) => {
+        setActiveDeckId(targetDeckId);
+        setJumpRequest({ deckId: targetDeckId, cardId: targetCardId });
+
+        // Ensure camera centers on new deck (optional, but good UX)
+        const targetNode = board.nodes.find(n => n.id === targetDeckId);
+        if (targetNode) {
+            const viewportW = window.innerWidth;
+            const viewportH = window.innerHeight;
+            const nodeCenterX = targetNode.x + 128;
+            const nodeCenterY = targetNode.y + 96;
+
+            // We reuse the zoom level, could also auto-zoom if needed
+            setPan({
+                x: (viewportW / 2) - (nodeCenterX * zoom),
+                y: (viewportH / 2) - (nodeCenterY * zoom)
+            });
+        }
+    };
+
     // --- Zoom & Pan & Drag Logic ---
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -348,27 +370,28 @@ const BoardView = () => {
             onMouseUp={handleMouseUp}
         >
             <div className="flex justify-between items-center px-6 pt-4 relative z-30">
-                <div className="text-gray-500 dark:text-gray-400 text-lg font-serif w-1/3">
+                <div className="text-gray-500 dark:text-gray-400 text-lg font-serif w-48 shrink-0">
                     {mode === 'edit' ? 'Editing mode' : 'Play mode'}
                 </div>
 
                 {/* Editable Title */}
-                <div className="w-1/3 flex justify-center">
+                <div className="flex-1 flex justify-center mx-4 min-w-0">
                     {mode === 'edit' ? (
                         <input
                             type="text"
                             value={title}
                             onChange={handleTitleChange}
-                            className="border border-black px-8 py-2 bg-white font-serif text-xl text-center w-full max-w-md dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                            className="bg-transparent font-serif text-3xl font-bold text-center w-full outline-none dark:text-white border-b border-transparent hover:border-gray-300 focus:border-black dark:focus:border-white transition-colors"
+                            placeholder="Board Title"
                         />
                     ) : (
-                        <div className="border border-black px-8 py-2 bg-white font-serif text-xl text-center w-full max-w-md dark:bg-gray-800 dark:text-white dark:border-gray-600">
+                        <h1 className="font-serif text-3xl font-bold text-center w-full dark:text-white truncate">
                             {title}
-                        </div>
+                        </h1>
                     )}
                 </div>
 
-                <div className="w-1/3 flex justify-end">
+                <div className="w-48 flex justify-end shrink-0">
                     <Header title="" showMenu={true} />
                 </div>
             </div>
@@ -515,6 +538,9 @@ const BoardView = () => {
                                     isScaleExpanded={activeDeckId === node.id && mode === 'play'}
                                     onUpdateContent={(newContent) => handleUpdateNodeContent(node.id, newContent)}
                                     onUpdateCard={(cardId, field, value) => handleUpdateCard(node.id, cardId, field, value)}
+                                    cardLinks={board.cardLinks || []}
+                                    onJumpToLink={handleJumpToLink}
+                                    jumpRequest={jumpRequest}
                                 />
                             </div>
                         );
@@ -546,6 +572,7 @@ const BoardView = () => {
                                 setBoards(boards.map(b => b.id === board.id ? updatedBoard : b));
                             }}
                             onDeleteDeck={handleDeleteNode}
+                            onUpdateContent={(newContent) => handleUpdateNodeContent(editingDeckId, newContent)}
                         />
                     </div>
                 )}
@@ -575,7 +602,7 @@ const BoardView = () => {
             {mode === 'edit' && (
                 <div
                     className={`fixed bottom-8 flex flex-col gap-4 transition-all duration-300 ease-in-out`}
-                    style={{ right: editingDeckId ? '28rem' : '2rem' }} // Shift to the left of the 420px + padding sidebar
+                    style={{ right: editingDeckId ? '40rem' : '2rem' }} // Shift to the left of the 600px sidebar + padding (approx 40rem)
                 >
                     {/* Add Deck Button */}
                     <button
