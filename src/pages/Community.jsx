@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import CommentDialog from '../components/CommentDialog';
+import BoardThumbnail from '../components/BoardThumbnail';
 import { useAppContext } from '../context/AppContext';
 
 const Community = () => {
-    const { communityBoards, upvoteBoard, addComment, addBoard, userUpvotes, categories } = useAppContext();
+    const { communityBoards, upvoteBoard, addComment, deleteComment, addBoard, userUpvotes, categories } = useAppContext();
     const navigate = useNavigate();
 
     const [selectedCourse, setSelectedCourse] = useState('Systems Programming');
@@ -76,9 +77,10 @@ const Community = () => {
 
             <main className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {communityBoards.filter(b => b.course === selectedCourse).map((board) => (
-                    <div key={board.id} className="bg-white dark:bg-gray-800 border border-black dark:border-white flex flex-col relative h-[250px] transition-colors">
+                    // Removed overflow-hidden to allow menu to extend
+                    <div key={board.id} className="bg-white dark:bg-gray-800 border border-black dark:border-white flex flex-col relative h-[250px] transition-all rounded-lg hover:shadow-lg group">
                         {/* Header: Title and Menu */}
-                        <div className="p-3 flex justify-between items-start border-b border-black dark:border-white h-14">
+                        <div className="p-3 flex justify-between items-start border-b border-black dark:border-white h-14 bg-gray-50/50 dark:bg-gray-700/30 rounded-t-lg">
                             <h3 className="font-serif text-lg font-bold truncate pr-2 dark:text-white">{board.title}</h3>
                             <button onClick={() => toggleMenu(board.id)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded shrink-0">
                                 <svg width="24" height="6" viewBox="0 0 24 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-black dark:text-white">
@@ -91,9 +93,9 @@ const Community = () => {
 
                         {/* Expanded Context Menu (Overlay) */}
                         {expandedMenuId === board.id && (
-                            <div className="absolute top-12 right-0 w-64 bg-white dark:bg-gray-800 border border-black dark:border-white shadow-lg z-20 p-4 flex flex-col gap-2">
+                            <div className="absolute top-12 right-0 w-64 bg-white dark:bg-gray-800 border border-black dark:border-white shadow-lg z-50 p-4 flex flex-col gap-2 rounded-lg">
                                 <div className="text-sm text-gray-500 dark:text-gray-400">Published in {board.year} by {board.author}</div>
-                                <div className="text-sm border-t border-gray-200 dark:border-gray-600 pt-2 dark:text-gray-300">{board.description}</div>
+                                <div className="text-sm border-t border-gray-200 dark:border-gray-600 pt-2 dark:text-gray-300 max-h-40 overflow-y-auto w-full break-words">{board.description}</div>
                                 <div className="flex justify-between items-center border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
                                     <button
                                         onClick={() => openComments(board.id)}
@@ -121,14 +123,10 @@ const Community = () => {
                         )}
 
                         {/* Content: Image Left, Actions Right */}
-                        <div className="flex flex-1 overflow-hidden">
+                        <div className="flex flex-1 overflow-hidden rounded-b-lg">
                             {/* Left: Image/Preview */}
-                            <div className="w-2/3 border-r border-black dark:border-white p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-700">
-                                <svg width="80" height="60" viewBox="0 0 100 60" fill="none" className="text-black dark:text-white">
-                                    <rect x="10" y="20" width="20" height="20" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                                    <circle cx="80" cy="30" r="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                                    <line x1="30" y1="30" x2="70" y2="30" stroke="currentColor" strokeWidth="1.5" />
-                                </svg>
+                            <div className="w-2/3 border-r border-black dark:border-white p-2 flex items-center justify-center bg-gray-50 dark:bg-gray-700/50">
+                                <BoardThumbnail nodes={board.nodes} edges={board.edges} />
                             </div>
 
                             {/* Right: Actions Column */}
@@ -179,6 +177,7 @@ const Community = () => {
                 onClose={() => setCommentDialogState({ ...commentDialogState, isOpen: false })}
                 comments={currentBoardComments}
                 onAddComment={handleAddComment}
+                onDeleteComment={(index) => deleteComment(commentDialogState.boardId, index)}
             />
         </div>
     );

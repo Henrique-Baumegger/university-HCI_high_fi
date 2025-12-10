@@ -5,6 +5,7 @@ const PublishDialog = ({ isOpen, onClose, onPublish }) => {
     const { categories } = useAppContext();
     const [tags, setTags] = useState('');
     const [category, setCategory] = useState(categories[0] || 'Systems Programming');
+    const [description, setDescription] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
 
@@ -24,7 +25,7 @@ const PublishDialog = ({ isOpen, onClose, onPublish }) => {
     const handleSubmit = () => {
         const finalCategory = isAddingNewCategory ? newCategory : category;
         const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-        onPublish(tagsArray, finalCategory);
+        onPublish(tagsArray, finalCategory, description);
         onClose();
     };
 
@@ -74,6 +75,16 @@ const PublishDialog = ({ isOpen, onClose, onPublish }) => {
                         onChange={(e) => setTags(e.target.value)}
                         placeholder="e.g. exam-prep, difficult, 2024"
                         className="w-full border border-black dark:border-white rounded p-2 font-serif dark:bg-gray-700 dark:text-white"
+                    />
+                </div>
+
+                <div className="mb-4">
+                    <label className="block font-serif text-sm font-bold mb-2 dark:text-white">Description</label>
+                    <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Describe your board..."
+                        className="w-full border border-black dark:border-white rounded p-2 font-serif h-24 resize-none dark:bg-gray-700 dark:text-white"
                     />
                 </div>
 

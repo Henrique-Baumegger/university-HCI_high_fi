@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
-const CommentDialog = ({ isOpen, onClose, comments, onAddComment }) => {
+const CommentDialog = ({ isOpen, onClose, comments, onAddComment, onDeleteComment }) => {
     const [newComment, setNewComment] = useState('');
 
     if (!isOpen) return null;
 
     const handleSubmit = (e) => {
+        // ... (unchanged)
         e.preventDefault();
         if (newComment.trim()) {
             onAddComment(newComment);
@@ -16,6 +17,7 @@ const CommentDialog = ({ isOpen, onClose, comments, onAddComment }) => {
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
             <div className="bg-white dark:bg-gray-800 border border-black dark:border-white p-6 w-96 max-w-full shadow-lg" onClick={e => e.stopPropagation()}>
+                {/* ... Header (unchanged) ... */}
                 <div className="flex justify-between items-center mb-4 border-b border-black dark:border-white pb-2">
                     <h3 className="font-serif text-xl dark:text-white">Comments</h3>
                     <button onClick={onClose} className="hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded dark:text-white">
@@ -29,8 +31,18 @@ const CommentDialog = ({ isOpen, onClose, comments, onAddComment }) => {
                 <div className="max-h-60 overflow-y-auto mb-4 space-y-2">
                     {comments && comments.length > 0 ? (
                         comments.map((comment, index) => (
-                            <div key={index} className="bg-gray-50 dark:bg-gray-700 p-2 border border-gray-200 dark:border-gray-600 rounded text-sm dark:text-white">
-                                {comment}
+                            <div key={index} className="flex justify-between items-start bg-gray-50 dark:bg-gray-700 p-2 border border-gray-200 dark:border-gray-600 rounded text-sm dark:text-white group">
+                                <span className="break-words flex-1 mr-2">{comment}</span>
+                                <button
+                                    onClick={() => onDeleteComment(index)}
+                                    className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Delete comment"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
                             </div>
                         ))
                     ) : (

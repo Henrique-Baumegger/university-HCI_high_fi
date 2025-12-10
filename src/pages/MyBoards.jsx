@@ -7,7 +7,7 @@ import { mockBoards } from '../data/mockData';
 import PublishDialog from '../components/PublishDialog';
 
 const MyBoards = () => {
-    const { boards, addBoard, setBoards, publishBoard, communityBoards } = useAppContext();
+    const { boards, addBoard, setBoards, publishBoard, unpublishBoard, communityBoards } = useAppContext();
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(null); // { id, x, y }
     const [publishDialogState, setPublishDialogState] = useState({ isOpen: false, boardId: null });
@@ -49,16 +49,24 @@ const MyBoards = () => {
         setMenuOpen(null);
     };
 
-    const confirmPublish = (tags, category) => {
+    const handleUnpublishClick = (id) => {
+        if (window.confirm('Are you sure you want to unpublish this board from the community?')) {
+            unpublishBoard(id);
+        }
+        setMenuOpen(null);
+    };
+
+    const confirmPublish = (tags, category, description) => {
         const board = boards.find(b => b.id === publishDialogState.boardId);
         if (board) {
-            publishBoard(board, tags, category);
+            publishBoard(board, tags, category, description);
             alert('Board published to Community!');
         }
         setPublishDialogState({ isOpen: false, boardId: null });
     };
 
     const isPublished = (id) => communityBoards.some(cb => cb.id === id);
+    const getPublishedInfo = (id) => communityBoards.find(cb => cb.id === id);
 
     return (
         <div className="min-h-screen bg-[#F9F5FF] dark:bg-gray-900 p-8 transition-colors" onClick={() => setMenuOpen(null)}>
@@ -94,13 +102,20 @@ const MyBoards = () => {
                         </div>
 
                         <div onClick={() => navigate(`/board/${board.id}`)} className="cursor-pointer flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-serif text-2xl font-bold truncate dark:text-white">{board.title}</h3>
+                            <div className="flex flex-col mb-2">
+                                <div className="flex items-center gap-2">
+                                    <h3 className="font-serif text-2xl font-bold truncate dark:text-white">{board.title}</h3>
+                                    {isPublished(board.id) && (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" title="Published" className="text-green-600 dark:text-green-400">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                        </svg>
+                                    )}
+                                </div>
                                 {isPublished(board.id) && (
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" title="Published" className="dark:text-white">
-                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                                    </svg>
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-serif">
+                                        Published in {getPublishedInfo(board.id)?.course}
+                                    </span>
                                 )}
                             </div>
                             <p className="text-gray-500 dark:text-gray-400 font-serif">
@@ -114,12 +129,21 @@ const MyBoards = () => {
                                 className="fixed bg-white dark:bg-gray-800 border border-black dark:border-white shadow-lg z-50 w-32 flex flex-col"
                                 style={{ top: menuOpen.y, left: menuOpen.x }}
                             >
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handlePublishClick(board.id); }}
-                                    className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 font-serif border-b border-gray-100 dark:border-gray-700 dark:text-white"
-                                >
-                                    Publish
-                                </button>
+                                {isPublished(board.id) ? (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleUnpublishClick(board.id); }}
+                                        className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 font-serif border-b border-gray-100 dark:border-gray-700 dark:text-white"
+                                    >
+                                        Unpublish
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handlePublishClick(board.id); }}
+                                        className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 font-serif border-b border-gray-100 dark:border-gray-700 dark:text-white"
+                                    >
+                                        Publish
+                                    </button>
+                                )}
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleDelete(board.id); }}
                                     className="px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 font-serif"

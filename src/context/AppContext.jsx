@@ -46,6 +46,17 @@ export const AppProvider = ({ children }) => {
         }));
     };
 
+    const deleteComment = (boardId, commentIndex) => {
+        setCommunityBoards(prevBoards => prevBoards.map(b => {
+            if (b.id === boardId) {
+                const currentComments = [...(b.commentsArray || [])];
+                currentComments.splice(commentIndex, 1);
+                return { ...b, commentsArray: currentComments, comments: Math.max(0, (b.comments || 0) - 1) };
+            }
+            return b;
+        }));
+    };
+
     const [userUpvotes, setUserUpvotes] = useState(() => {
         const savedUpvotes = localStorage.getItem('userUpvotes');
         return savedUpvotes ? JSON.parse(savedUpvotes) : [];
@@ -56,7 +67,10 @@ export const AppProvider = ({ children }) => {
     }, [userUpvotes]);
 
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-    const [fontSize, setFontSize] = useState(() => localStorage.getItem('fontSize') || 'medium');
+    const [fontSize, setFontSize] = useState(() => {
+        const saved = localStorage.getItem('fontSize');
+        return (saved && ['small', 'medium', 'large'].includes(saved)) ? saved : 'small';
+    });
 
     React.useEffect(() => {
         localStorage.setItem('theme', theme);
@@ -66,8 +80,9 @@ export const AppProvider = ({ children }) => {
     React.useEffect(() => {
         localStorage.setItem('fontSize', fontSize);
         // Apply font size to root
-        const sizeMap = { small: '14px', medium: '16px', large: '20px' };
-        document.documentElement.style.fontSize = sizeMap[fontSize];
+        // User requested: Small=16px, Medium=20px, Large=24px
+        const sizeMap = { small: '16px', medium: '20px', large: '24px' };
+        document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
     }, [fontSize]);
 
     // Categories State
@@ -90,7 +105,7 @@ export const AppProvider = ({ children }) => {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
     };
 
-    const publishBoard = (board, tags = [], category = 'Systems Programming') => {
+    const publishBoard = (board, tags = [], category = 'Systems Programming', description = '') => {
         // Ensure category exists
         if (category && !categories.includes(category)) {
             addCategory(category);
@@ -101,7 +116,7 @@ export const AppProvider = ({ children }) => {
             title: board.title,
             author: 'You', // In a real app, this would be the user's name
             year: new Date().getFullYear(),
-            description: 'Published from My Boards',
+            description: description || 'Published from My Boards',
             course: category,
             tags: tags,
             upvotes: 0,
@@ -112,6 +127,10 @@ export const AppProvider = ({ children }) => {
             cardLinks: board.cardLinks || []
         };
         setCommunityBoards(prev => [...prev, newCommunityBoard]);
+    };
+
+    const unpublishBoard = (boardId) => {
+        setCommunityBoards(prev => prev.filter(b => b.id !== boardId));
     };
 
     const upvoteBoard = (boardId) => {
@@ -139,8 +158,10 @@ export const AppProvider = ({ children }) => {
             communityBoards,
             updateCommunityBoard,
             addComment,
+            deleteComment,
             upvoteBoard,
             publishBoard,
+            unpublishBoard,
             userUpvotes,
             theme,
             toggleTheme,
