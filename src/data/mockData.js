@@ -27,110 +27,122 @@ export const mockBoards = [
 
 export const communityBoards = [
     {
-        id: 101,
-        title: "x86 Assembly Guide",
-        author: "LowLevelWizard",
-        year: "2023",
+        id: 'sys_prog_101',
+        title: "Systems Programming Basics",
+        author: "SystemArch",
+        year: "2024",
         course: "Systems Programming",
-        description: "A comprehensive guide to x86 assembly instructions and registers.",
-        upvotes: 120,
-        comments: 45,
-        commentsArray: ["Great guide!", "Very helpful for the exam."],
+        description: "Essential concepts for Systems Programming.",
+        upvotes: 42,
+        comments: 5,
+        commentsArray: ["Good starting point."],
         nodes: [
             {
-                id: 'd1',
+                id: 'sp_d1',
                 type: 'deck',
                 x: 100,
                 y: 100,
-                content: 'Registers',
+                content: 'Memory',
                 cards: [
-                    { id: 'c1', front: 'What is EAX?', back: 'Accumulator Register' },
-                    { id: 'c2', front: 'What is EBX?', back: 'Base Register' }
+                    { id: 'sp_d1_c1', front: 'What is the Heap?', back: 'Dynamic memory allocation.' },
+                    { id: 'sp_d1_c2', front: 'What is the Stack?', back: 'Local variable storage.' }
                 ]
             },
             {
-                id: 'c3',
+                id: 'sp_d2',
                 type: 'deck',
-                x: 400,
+                x: 900,
                 y: 100,
-                content: 'MOV Instruction',
-                front: 'MOV dest, src',
-                back: 'Copies data from src to dest'
+                content: 'Pointers',
+                cards: [
+                    { id: 'sp_d2_c3', front: 'What is a pointer?', back: 'A variable that stores a memory address.' },
+                    { id: 'sp_d2_c4', front: 'What is dereferencing?', back: 'Accessing value at the address.' }
+                ]
             }
         ],
+        cardLinks: [
+            { id: 'link_sp_1', sourceDeckId: 'sp_d1', sourceCardId: 'sp_d1_c1', targetDeckId: 'sp_d2', targetCardId: 'sp_d2_c3' }
+        ],
         edges: [
-            { id: 'e1', source: 'd1', target: 'c3' }
+            { id: 'e1', source: 'sp_d1', target: 'sp_d2' }
         ]
     },
     {
-        id: 102,
-        title: "Memory Management",
-        author: "OS_Master",
+        id: 'cn_101',
+        title: "Network Fundamentals",
+        author: "NetWiz",
         year: "2024",
-        course: "Systems Programming",
-        description: "Deep dive into paging, segmentation, and virtual memory.",
-        upvotes: 85,
-        comments: 12,
-        commentsArray: ["Clear explanations."],
-        nodes: [
-            {
-                id: 'd2',
-                type: 'deck',
-                x: 200,
-                y: 200,
-                content: 'Paging',
-                cards: [
-                    { id: 'c4', front: 'What is a Page Table?', back: 'Data structure used by virtual memory system to store mapping between virtual and physical addresses' }
-                ]
-            }
-        ],
-        edges: []
-    },
-    {
-        id: 103,
-        title: "TCP/IP Stack",
-        author: "NetNinja",
-        year: "2023",
         course: "Computer Networks",
-        description: "Understanding the 4 layers of TCP/IP.",
-        upvotes: 200,
-        comments: 50,
+        description: "Basic networking concepts and protocols.",
+        upvotes: 35,
+        comments: 2,
         commentsArray: [],
         nodes: [
             {
-                id: 'd_app', type: 'deck', x: 100, y: 50, content: 'Application Layer', cards: [
-                    { id: 'c_http', front: 'What is HTTP?', back: 'HyperText Transfer Protocol - used for transmitting web pages.' },
-                    { id: 'c_dns', front: 'What is DNS?', back: 'Domain Name System - translates domain names to IP addresses.' },
-                    { id: 'c_smtp', front: 'What is SMTP?', back: 'Simple Mail Transfer Protocol - used for sending emails.' }
+                id: 'cn_d1',
+                type: 'deck',
+                x: 100,
+                y: 100,
+                content: 'Protocols',
+                cards: [
+                    { id: 'cn_d1_c1', front: 'HTTP Port', back: '80' },
+                    { id: 'cn_d1_c2', front: 'HTTPS Port', back: '443' }
                 ]
             },
             {
-                id: 'd_trans', type: 'deck', x: 100, y: 250, content: 'Transport Layer', cards: [
-                    { id: 'c_tcp', front: 'What is TCP?', back: 'Transmission Control Protocol - connection-oriented, reliable delivery.' },
-                    { id: 'c_udp', front: 'What is UDP?', back: 'User Datagram Protocol - connectionless, faster but unreliable.' },
-                    { id: 'c_ports', front: 'What are ports?', back: 'Logical endpoints for communication (e.g., 80 for HTTP).' }
+                id: 'cn_d2',
+                type: 'deck',
+                x: 900,
+                y: 200,
+                content: 'Layers',
+                cards: [
+                    { id: 'cn_d2_c3', front: 'Layer 3', back: 'Network Layer (IP)' },
+                    { id: 'cn_d2_c4', front: 'Layer 4', back: 'Transport Layer (TCP/UDP)' }
+                ]
+            }
+        ],
+        cardLinks: [],
+        edges: []
+    },
+    {
+        id: 'pp_101',
+        title: "Parallel Thinking",
+        author: "ThreadMaster",
+        year: "2024",
+        course: "Parallel Programming",
+        description: "Intro to parallel processing.",
+        upvotes: 56,
+        comments: 8,
+        commentsArray: [],
+        nodes: [
+            {
+                id: 'pp_d1',
+                type: 'deck',
+                x: 100,
+                y: 100,
+                content: 'Threads',
+                cards: [
+                    { id: 'pp_d1_c1', front: 'Race Condition', back: 'Uncontrolled concurrent access to shared data.' },
+                    { id: 'pp_d1_c2', front: 'Deadlock', back: 'Threads waiting indefinitely for each other.' }
                 ]
             },
             {
-                id: 'd_net', type: 'deck', x: 100, y: 450, content: 'Network Layer', cards: [
-                    { id: 'c_ip', front: 'What is IP?', back: 'Internet Protocol - responsible for addressing and routing packets.' },
-                    { id: 'c_router', front: 'What does a router do?', back: 'Forwards data packets between computer networks.' }
+                id: 'pp_d2',
+                type: 'deck',
+                x: 900,
+                y: 300,
+                content: 'Synchronization',
+                cards: [
+                    { id: 'pp_d2_c3', front: 'Mutex', back: 'Mutual Exclusion object.' },
+                    { id: 'pp_d2_c4', front: 'Semaphore', back: 'Signaling mechanism.' }
                 ]
-            },
-            {
-                id: 'd_link', type: 'deck', x: 100, y: 650, content: 'Link Layer', cards: [
-                    { id: 'c_mac', front: 'What is a MAC address?', back: 'Media Access Control address - unique identifier for network interfaces.' },
-                    { id: 'c_eth', front: 'What is Ethernet?', back: 'Family of wired computer networking technologies.' }
-                ]
-            },
-            { id: 'e_tcp_handshake', type: 'deck', x: 400, y: 250, content: '3-Way Handshake: SYN, SYN-ACK, ACK', relatedCardId: 'c_tcp' },
-            { id: 'e_osi', type: 'deck', x: 400, y: 50, content: 'OSI Model has 7 layers, TCP/IP has 4', relatedCardId: 'd_app' }
+            }
+        ],
+        cardLinks: [
+            { id: 'link_pp_1', sourceDeckId: 'pp_d1', sourceCardId: 'pp_d1_c1', targetDeckId: 'pp_d2', targetCardId: 'pp_d2_c3' }
         ],
         edges: [
-            { id: 'l1', source: 'd_app', target: 'd_trans' },
-            { id: 'l2', source: 'd_trans', target: 'd_net' },
-            { id: 'l3', source: 'd_net', target: 'd_link' },
-            { id: 'l4', source: 'd_trans', target: 'e_tcp_handshake', color: 'red' }
+            { id: 'e1', source: 'pp_d1', target: 'pp_d2' }
         ]
     }
 ];

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BoardThumbnail = ({ nodes = [], edges = [] }) => {
+const BoardThumbnail = ({ nodes = [], edges = [], cardLinks = [] }) => {
     if (!nodes || nodes.length === 0) {
         return (
             <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 text-xs">
@@ -35,14 +35,34 @@ const BoardThumbnail = ({ nodes = [], edges = [] }) => {
     const viewBoxX = minX - padding;
     const viewBoxY = minY - padding;
 
+    // Calculate edges from cardLinks
+    const derivedEdges = [];
+    if (cardLinks && cardLinks.length > 0) {
+        cardLinks.forEach(link => {
+            const sourceDeckId = link.sourceDeckId || link.sourceId; // Fallback for safety
+            const targetDeckId = link.targetDeckId || link.targetId;
+
+            // Avoid self-loops and duplicates
+            if (sourceDeckId !== targetDeckId) {
+                const existing = derivedEdges.find(e =>
+                    (e.source === sourceDeckId && e.target === targetDeckId) ||
+                    (e.source === targetDeckId && e.target === sourceDeckId)
+                );
+                if (!existing) {
+                    derivedEdges.push({ source: sourceDeckId, target: targetDeckId });
+                }
+            }
+        });
+    }
+
     return (
         <svg
             viewBox={`${viewBoxX} ${viewBoxY} ${width} ${height}`}
             className="w-full h-full text-gray-800 dark:text-gray-200"
             preserveAspectRatio="xMidYMid meet"
         >
-            {/* Edges */}
-            {edges.map((edge, i) => {
+            {/* Edges from Card Links */}
+            {derivedEdges.map((edge, i) => {
                 const source = nodes.find(n => n.id === edge.source);
                 const target = nodes.find(n => n.id === edge.target);
                 if (!source || !target) return null;

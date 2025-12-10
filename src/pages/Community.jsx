@@ -126,7 +126,7 @@ const Community = () => {
                         <div className="flex flex-1 overflow-hidden rounded-b-lg">
                             {/* Left: Image/Preview */}
                             <div className="w-2/3 border-r border-black dark:border-white p-2 flex items-center justify-center bg-gray-50 dark:bg-gray-700/50">
-                                <BoardThumbnail nodes={board.nodes} edges={board.edges} />
+                                <BoardThumbnail nodes={board.nodes} edges={board.edges} cardLinks={board.cardLinks} />
                             </div>
 
                             {/* Right: Actions Column */}

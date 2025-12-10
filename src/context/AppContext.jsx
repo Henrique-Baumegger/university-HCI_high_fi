@@ -11,7 +11,7 @@ export const AppProvider = ({ children }) => {
     });
 
     const [communityBoards, setCommunityBoards] = useState(() => {
-        const savedCommunityBoards = localStorage.getItem('communityBoards');
+        const savedCommunityBoards = localStorage.getItem('communityBoards_v5');
         return savedCommunityBoards ? JSON.parse(savedCommunityBoards) : initialCommunityBoards;
     });
 
@@ -21,7 +21,7 @@ export const AppProvider = ({ children }) => {
     }, [boards]);
 
     React.useEffect(() => {
-        localStorage.setItem('communityBoards', JSON.stringify(communityBoards));
+        localStorage.setItem('communityBoards_v5', JSON.stringify(communityBoards));
     }, [communityBoards]);
 
     const addBoard = (newBoard) => {
