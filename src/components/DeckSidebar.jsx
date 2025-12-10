@@ -1,9 +1,37 @@
 import React, { useState } from 'react';
 
-const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDeleteCard, onAddLink, cardLinks, onDeleteLink, onDeleteDeck, onUpdateContent }) => {
+const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDeleteCard, onAddLink, cardLinks, onDeleteLink, onDeleteDeck, onUpdateContent, width, onResize }) => {
     const [linkingCardId, setLinkingCardId] = useState(null);
     const [selectedDeckId, setSelectedDeckId] = useState('');
     const [selectedCardId, setSelectedCardId] = useState('');
+    const [isResizing, setIsResizing] = useState(false);
+
+    React.useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isResizing) return;
+            const newWidth = window.innerWidth - e.clientX;
+            if (newWidth > 300 && newWidth < window.innerWidth - 100) {
+                onResize(newWidth);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsResizing(false);
+            document.body.style.cursor = 'default';
+        };
+
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'ew-resize';
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'default';
+        };
+    }, [isResizing, onResize]);
 
     if (!deck) return null;
 
@@ -22,10 +50,16 @@ const DeckSidebar = ({ deck, allDecks, onClose, onUpdateCard, onAddCard, onDelet
 
     return (
         <div
-            className="fixed right-0 top-0 bottom-0 w-[600px] bg-white dark:bg-gray-800 border-l border-black dark:border-gray-600 shadow-xl z-40 flex flex-col transform transition-transform duration-300 ease-in-out"
+            className="fixed right-0 top-0 bottom-0 bg-white dark:bg-gray-800 border-l border-black dark:border-gray-600 shadow-xl z-40 flex flex-col transform transition-all duration-75 ease-out"
+            style={{ width: width ? `${width}px` : '600px' }}
             onMouseDown={(e) => e.stopPropagation()}
             onWheel={(e) => e.stopPropagation()}
         >
+            {/* Resize Handle */}
+            <div
+                className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-400 z-50 transition-colors"
+                onMouseDown={() => setIsResizing(true)}
+            />
             {/* Header */}
             <div className="p-4 border-b border-black dark:border-gray-600 flex justify-between items-center bg-[#F9F5FF] dark:bg-gray-900">
                 <div className="flex items-center gap-2 overflow-hidden flex-1 mr-4">

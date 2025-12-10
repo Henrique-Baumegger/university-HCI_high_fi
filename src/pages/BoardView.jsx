@@ -13,7 +13,7 @@ const BoardView = () => {
     const navigate = useNavigate();
     const { boards, communityBoards, updateBoardTitle, addBoard, setBoards } = useAppContext();
     const [board, setBoard] = useState(null);
-    const [mode, setMode] = useState('edit'); // 'edit' or 'play'
+    const [mode, setMode] = useState('play'); // 'edit' or 'play'
     const [menuOpen, setMenuOpen] = useState(null); // { x, y, nodeId }
     const [title, setTitle] = useState('');
 
@@ -258,6 +258,9 @@ const BoardView = () => {
 
     const [jumpRequest, setJumpRequest] = useState(null); // { deckId, cardId }
 
+    // Sidebar State
+    const [sidebarWidth, setSidebarWidth] = useState(600);
+
     const handleJumpToLink = (targetDeckId, targetCardId) => {
         setActiveDeckId(targetDeckId);
         setJumpRequest({ deckId: targetDeckId, cardId: targetCardId });
@@ -286,6 +289,20 @@ const BoardView = () => {
     const [startVal, setStartVal] = useState({ x: 0, y: 0 }); // Initial values (node pos or pan pos)
 
     const [draggingId, setDraggingId] = useState(null);
+
+    // Center Camera Logic
+    const handleCenterCamera = () => {
+        setPan({
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2
+        });
+        setZoom(1);
+    };
+
+    // Initial Center on Mount
+    useEffect(() => {
+        handleCenterCamera();
+    }, []);
 
     const handleWheel = (e) => {
         // Zoom logic
@@ -364,7 +381,8 @@ const BoardView = () => {
 
     return (
         <div
-            className="min-h-screen bg-[#F9F5FF] dark:bg-gray-900 flex flex-col transition-colors duration-300"
+            className="min-h-screen bg-[#F9F5FF] dark:bg-gray-900 flex flex-col transition-all duration-300"
+            style={{ paddingRight: (mode === 'edit' && editingDeckId) ? `${sidebarWidth}px` : '0px' }}
             onClick={closeMenu}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -491,6 +509,10 @@ const BoardView = () => {
                                 </g>
                             );
                         })}
+                        {/* Center Point Dot */}
+                        <foreignObject x="-4" y="-4" width="8" height="8" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                            <div className="w-2 h-2 bg-gray-300 rounded-full" />
+                        </foreignObject>
                     </svg>
 
                     {/* Nodes */}
@@ -573,6 +595,8 @@ const BoardView = () => {
                             }}
                             onDeleteDeck={handleDeleteNode}
                             onUpdateContent={(newContent) => handleUpdateNodeContent(editingDeckId, newContent)}
+                            width={sidebarWidth}
+                            onResize={setSidebarWidth}
                         />
                     </div>
                 )}
@@ -580,7 +604,7 @@ const BoardView = () => {
 
             {/* Mode Toggle (Bottom Left) */}
             {!isReadOnly && (
-                <div className="absolute bottom-8 left-8 z-40">
+                <div className="absolute bottom-8 left-8 z-40 flex items-center gap-4">
                     <div className="bg-white dark:bg-gray-800 border border-black dark:border-white rounded-full p-1 flex shadow-lg">
                         <button
                             onClick={() => setMode('edit')}
@@ -595,6 +619,18 @@ const BoardView = () => {
                             Play
                         </button>
                     </div>
+
+                    {/* Re-center Button */}
+                    <button
+                        onClick={handleCenterCamera}
+                        className="w-8 h-8 bg-white dark:bg-gray-800 border border-black dark:border-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-transform hover:scale-105"
+                        title="Center Camera"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="dark:text-white">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M12 5V3M12 21v-2M5 12H3m18 0h-2" />
+                        </svg>
+                    </button>
                 </div>
             )}
 
@@ -602,7 +638,7 @@ const BoardView = () => {
             {mode === 'edit' && (
                 <div
                     className={`fixed bottom-8 flex flex-col gap-4 transition-all duration-300 ease-in-out`}
-                    style={{ right: editingDeckId ? '40rem' : '2rem' }} // Shift to the left of the 600px sidebar + padding (approx 40rem)
+                    style={{ right: editingDeckId ? `${sidebarWidth + 32}px` : '2rem' }}
                 >
                     {/* Add Deck Button */}
                     <button
