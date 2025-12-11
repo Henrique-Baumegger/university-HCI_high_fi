@@ -81,13 +81,10 @@ const MiniDeck = ({ node, isEditable, isSelected, isScaleExpanded, onUpdateConte
                         isScaleExpanded ? 'border-emerald-400 border-2 shadow-2xl shadow-emerald-100/50 dark:shadow-emerald-900/20' : 'border-black dark:border-gray-600'}
                 `}>
                     {/* Header/Title Area */}
-                    <div className={`min-h-[2rem] border-b flex items-center justify-between px-2 py-1 transition-colors
+                    <div className={`min-h-[2rem] border-b flex items-center justify-center px-2 py-1 transition-colors
                         ${isScaleExpanded ? 'bg-emerald-50/30 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' : 'bg-white dark:bg-gray-800 border-black dark:border-gray-600'}
                     `}>
                         <span className="text-xs text-center w-full bg-transparent font-bold dark:text-white break-words whitespace-normal block">{node.content}</span>
-                        <span className="text-[10px] text-gray-400 font-serif whitespace-nowrap ml-1 shrink-0 self-start mt-0.5">
-                            {cards.length} cards
-                        </span>
                     </div>
 
                     {/* Card Content */}
