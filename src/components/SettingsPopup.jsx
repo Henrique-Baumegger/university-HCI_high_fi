@@ -2,7 +2,14 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 
 const SettingsPopup = ({ onClose }) => {
-    const { theme, toggleTheme, fontSize, setFontSize } = useAppContext();
+    const { theme, toggleTheme, fontSize, setFontSize, boards } = useAppContext();
+    const [copySuccess, setCopySuccess] = React.useState('');
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(JSON.stringify(boards));
+        setCopySuccess('Copied!');
+        setTimeout(() => setCopySuccess(''), 2000);
+    };
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={onClose}>
@@ -34,6 +41,26 @@ const SettingsPopup = ({ onClose }) => {
                             </button>
                         ))}
                     </div>
+                </div>
+
+                {/* Developer Zone */}
+                <div className="mb-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <span className="font-serif text-lg block mb-2 dark:text-white">Developer Zone</span>
+                    <button
+                        onClick={handleCopy}
+                        className="w-full py-2 border border-black dark:border-white rounded font-serif bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <span>{copySuccess || 'Copy Board Data'}</span>
+                        {!copySuccess && (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        )}
+                    </button>
+                    <p className="text-[10px] text-gray-400 mt-2 text-center">
+                        Use this to export your local data.
+                    </p>
                 </div>
 
                 <button

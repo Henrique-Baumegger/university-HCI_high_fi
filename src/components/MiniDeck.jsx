@@ -176,7 +176,7 @@ const MiniDeck = ({
                             )}
 
                             {/* Content or Input */}
-                            <div className="w-full h-full flex items-center justify-center mt-2">
+                            <div className="w-full h-full flex flex-col items-center justify-center mt-2 gap-2">
                                 {isEditable && cards.length > 0 ? (
                                     <textarea
                                         value={isFlipped ? currentCard.back : currentCard.front}
@@ -190,6 +190,27 @@ const MiniDeck = ({
                                             isFlipped ? (currentCard?.back || "Net Answer") : (currentCard?.front || "New Question")
                                         ) : "Empty Deck"}
                                     </p>
+                                )}
+
+                                {/* PLAY MODE LINK BUTTON */}
+                                {isScaleExpanded && !isEditable && cardSpecificLinks.length > 0 && isFlipped && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const link = cardSpecificLinks[0];
+                                            const targetDeckId = (link.sourceDeckId === node.id) ? link.targetDeckId : link.sourceDeckId;
+                                            const targetCardId = (link.sourceDeckId === node.id) ? link.targetCardId : link.sourceCardId;
+                                            onJumpToLink(targetDeckId, targetCardId);
+                                        }}
+                                        className="w-8 h-8 flex-shrink-0 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:hover:bg-blue-800 border border-blue-500 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300 transition-colors shadow-sm mt-2"
+                                        title="Jump to Linked Card"
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                            <polyline points="15 3 21 3 21 9"></polyline>
+                                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                                        </svg>
+                                    </button>
                                 )}
                             </div>
                         </div>
