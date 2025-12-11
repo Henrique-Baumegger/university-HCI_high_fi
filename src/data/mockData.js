@@ -1,26 +1,86 @@
 export const mockBoards = [
     {
-        id: '1',
-        title: 'Shakespeare',
-        author: 'You',
-        year: '2025',
-        nodes: [
+        "id": "b-1765397333491",
+        "title": "Java",
+        "author": "You",
+        "year": "2025",
+        "nodes": [
             {
-                id: 'n1', type: 'deck', x: 100, y: 100, content: 'Hamlet & Midsummer', cards: [
-                    { id: 'c1', front: 'Which play features the character Puck?', back: 'A Midsummer Night\'s Dream' },
-                    { id: 'c2', front: 'Who is the Prince of Denmark?', back: 'Hamlet' }
+                "id": "d - 1765398578510 ",
+                "type": "deck",
+                "x": -646.5282973604691,
+                "y": -727.9490478815185,
+                "content": "Basics",
+                "cards": [
+                    { "id": "c - 1765398585957 ", "front": "Is Int a primitive or object?", "back": "Primitive" },
+                    { "id": "c - 1765398700174 ", "front": "What is the difference between JDK and JRE?", "back": "JDK: tools + compiler + JRE. JRE: only the runtime (JVM + core libraries)" },
+                    { "id": "c - 1765398719266 ", "front": "What does println(x++) outputs for a initial x=5 ?", "back": "5" },
+                    { "id": "c - 1765403447116 ", "front": "What is the main Java programm paradigm?", "back": "OOP" }
                 ]
             },
-            { id: 'n2', type: 'deck', x: 400, y: 50, content: 'Which play is about the prince of Denmark?', relatedCardId: 'c2' },
-            { id: 'n3', type: 'deck', x: 500, y: 300, content: 'From what play is "to be or not to be"?', relatedCardId: 'c2' },
             {
-                id: 'n4', type: 'deck', x: 600, y: 400, content: 'As You Like It', cards: [
-                    { id: 'c3', front: '"All the world\'s a stage"', back: 'As You Like It' }
+                "id": "d - 1765398785485 ",
+                "type": "deck",
+                "x": -583.6330784382124,
+                "y": 193.55072262749508,
+                "content": "OOP",
+                "cards": [
+                    { "id": "c - 1765398808428 ", "front": "What is encapsulation?", "back": "Hiding internal state and requiring all interaction through methods" },
+                    { "id": "c - 1765398873315 ", "front": "What are the four main OOP pillars in Java?", "back": "Encapsulation, Inheritance, Polymorphism, Abstraction" },
+                    { "id": "c - 1765398890035 ", "front": "What is method overriding?", "back": "A subclass provides its own implementation of a method defined in its superclass, using the same signature" },
+                    { "id": "c - 1765399797149 ", "front": "When would you use an abstract class instead of interface?", "back": "When you want to share partial implementation among subclasses" },
+                    { "id": "c - 1765400890985 ", "front": "What does the \"new\" keyword do ?", "back": "It allocates a new instance of a class, calls its constructor, and returns a reference to that object" },
+                    { "id": "c - 1765401284234 ", "front": "When is an object considered \"no longer needed\" from the point of view of your Java program?", "back": "When it is no longer reachable" }
+                ]
+            },
+            {
+                "id": "d - 1765399863453 ",
+                "type": "deck",
+                "x": 127.74494805882505,
+                "y": -579.226692227431,
+                "content": "Collections and Generics",
+                "cards": [
+                    { "id": "c - 1765399882842 ", "front": "Which collection is best for key–value storage with fast average lookup?", "back": "HashMap, with O(1) lookup" },
+                    { "id": "c - 1765399918675 ", "front": "What does the type List<String> mean?", "back": "A list with elements that are all of type String" },
+                    { "id": "c - 1765399953384 ", "front": "Why is List<int> not allowed in Java?", "back": "Generics work with reference types only. Use the wrapper class instead." },
+                    { "id": "c - 1765399991756 ", "front": "Compare access complexity of ArrayList vs LinkedList ", "back": "ArrayList: O(1)\n LinkedList: O(n)" }
+                ]
+            },
+            {
+                "id": "d - 1765400058138 ",
+                "type": "deck",
+                "x": 689.9684288695844,
+                "y": 169.6460934194563,
+                "content": "JVM and memory",
+                "cards": [
+                    { "id": "c - 1765400067155 ", "front": "List two responsibilities of the JVM at runtime", "back": "loading classes, managing memory" },
+                    { "id": "c - 1765400090682 ", "front": "Where are objects at runtime?", "back": "On the heap" },
+                    { "id": "c - 1765400111158 ", "front": "Which memory area stores local variables and method call frames?", "back": "The stack" },
+                    { "id": "c - 1765400542035 ", "front": "What is the JVM?", "back": "The Java Virtual Machine executes compiled bytecode" },
+                    { "id": "c - 1765401190087 ", "front": "After calling \"new\", where is the object stored and what does the variable actually hold?", "back": "The object itself lives on the heap; the variable holds a reference to that heap object" },
+                    { "id": "c - 1765401243202 ", "front": "What does the JVM do with objects that are no longer reachable from any GC root?", "back": "They are treated as garbage and the garbage collector eventually reclaims the heap memory " }
+                ]
+            },
+            {
+                "id": "d - 1765400131468 ",
+                "type": "deck",
+                "x": -1106.3004526060577,
+                "y": 89.66039871878836,
+                "content": "History ",
+                "cards": [
+                    { "id": "c - 1765400141747 ", "front": "Who is considered the father of Java?", "back": "James Gosling" },
+                    { "id": "c - 1765400151082 ", "front": "In which year was Java first released?", "back": "1995" },
+                    { "id": "c - 1765400157010 ", "front": "What was Java's original project name?", "back": "Oak" }
                 ]
             }
         ],
-        edges: [
-            { id: 'e1', source: 'n2', target: 'n3', color: 'red', curve: 'bezier' }
+        "edges": [],
+        "cardLinks": [
+            { "id": "l-1765400743515", "sourceDeckId": "d - 1765398578510 ", "sourceCardId": "c - 1765398585957 ", "targetDeckId": "d - 1765399863453 ", "targetCardId": "c - 1765399953384 " },
+            { "id": "l-1765400805426", "sourceDeckId": "d - 1765399863453 ", "sourceCardId": "c - 1765399882842 ", "targetDeckId": "d - 1765400058138 ", "targetCardId": "c - 1765400090682 " },
+            { "id": "l-1765401234680", "sourceDeckId": "d - 1765400058138 ", "sourceCardId": "c - 1765401190087 ", "targetDeckId": "d - 1765398785485 ", "targetCardId": "c - 1765400890985 " },
+            { "id": "l-1765401342393", "sourceDeckId": "d - 1765398785485 ", "sourceCardId": "c - 1765401284234 ", "targetDeckId": "d - 1765400058138 ", "targetCardId": "c - 1765401243202 " },
+            { "id": "l-1765403480601", "sourceDeckId": "d - 1765398578510 ", "sourceCardId": "c - 1765403447116 ", "targetDeckId": "d - 1765398785485 ", "targetCardId": "c - 1765398873315 " }
         ]
     }
 ];
