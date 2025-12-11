@@ -6,7 +6,6 @@ import Header from '../components/Header';
 import MiniDeck from '../components/MiniDeck';
 import ExposedCard from '../components/ExposedCard';
 import { useAppContext } from '../context/AppContext';
-import DeckSidebar from '../components/DeckSidebar';
 
 const BoardView = () => {
     const { id } = useParams();
@@ -258,8 +257,6 @@ const BoardView = () => {
 
     const [jumpRequest, setJumpRequest] = useState(null); // { deckId, cardId }
 
-    // Sidebar State
-    const [sidebarWidth, setSidebarWidth] = useState(600);
 
     const handleJumpToLink = (targetDeckId, targetCardId) => {
         setActiveDeckId(targetDeckId);
@@ -382,7 +379,6 @@ const BoardView = () => {
     return (
         <div
             className="min-h-screen bg-[#F9F5FF] dark:bg-gray-900 flex flex-col transition-all duration-300"
-            style={{ paddingRight: (mode === 'edit' && editingDeckId) ? `${sidebarWidth}px` : '0px' }}
             onClick={closeMenu}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -549,7 +545,8 @@ const BoardView = () => {
                                     position: 'absolute',
                                     left: node.x,
                                     top: node.y,
-                                    cursor: mode === 'edit' ? 'move' : 'pointer'
+                                    cursor: mode === 'edit' ? 'move' : 'pointer',
+                                    zIndex: ((mode === 'edit' && editingDeckId === node.id) || (mode === 'play' && activeDeckId === node.id)) ? 50 : 'auto'
                                 }}
                                 className="group"
                             >
@@ -560,6 +557,17 @@ const BoardView = () => {
                                     isScaleExpanded={activeDeckId === node.id && mode === 'play'}
                                     onUpdateContent={(newContent) => handleUpdateNodeContent(node.id, newContent)}
                                     onUpdateCard={(cardId, field, value) => handleUpdateCard(node.id, cardId, field, value)}
+                                    onAddCard={handleAddCardToDeck}
+                                    onDeleteCard={handleDeleteCard}
+                                    onAddLink={handleAddLink}
+                                    onDeleteLink={(linkId) => {
+                                        const updatedLinks = (board.cardLinks || []).filter(l => l.id !== linkId);
+                                        const updatedBoard = { ...board, cardLinks: updatedLinks };
+                                        setBoard(updatedBoard);
+                                        setBoards(boards.map(b => b.id === board.id ? updatedBoard : b));
+                                    }}
+                                    onDeleteDeck={handleDeleteNode}
+                                    allDecks={board.nodes.filter(n => n.type === 'deck')}
                                     cardLinks={board.cardLinks || []}
                                     onJumpToLink={handleJumpToLink}
                                     jumpRequest={jumpRequest}
@@ -575,31 +583,6 @@ const BoardView = () => {
 
 
 
-                {/* Deck Sidebar */}
-                {mode === 'edit' && editingDeckId && !isReadOnly && (
-                    <div onClick={(e) => e.stopPropagation()}>
-                        <DeckSidebar
-                            deck={board.nodes.find(n => n.id === editingDeckId)}
-                            allDecks={board.nodes.filter(n => n.type === 'deck')}
-                            onClose={() => setEditingDeckId(null)}
-                            onUpdateCard={handleUpdateCard}
-                            onAddCard={handleAddCardToDeck}
-                            onDeleteCard={handleDeleteCard}
-                            onAddLink={handleAddLink}
-                            cardLinks={board.cardLinks || []}
-                            onDeleteLink={(linkId) => {
-                                const updatedLinks = (board.cardLinks || []).filter(l => l.id !== linkId);
-                                const updatedBoard = { ...board, cardLinks: updatedLinks };
-                                setBoard(updatedBoard);
-                                setBoards(boards.map(b => b.id === board.id ? updatedBoard : b));
-                            }}
-                            onDeleteDeck={handleDeleteNode}
-                            onUpdateContent={(newContent) => handleUpdateNodeContent(editingDeckId, newContent)}
-                            width={sidebarWidth}
-                            onResize={setSidebarWidth}
-                        />
-                    </div>
-                )}
             </div>
 
             {/* Mode Toggle (Bottom Left) */}
@@ -638,7 +621,7 @@ const BoardView = () => {
             {mode === 'edit' && (
                 <div
                     className={`fixed bottom-8 flex flex-col gap-4 transition-all duration-300 ease-in-out`}
-                    style={{ right: editingDeckId ? `${sidebarWidth + 32}px` : '2rem' }}
+                    style={{ right: '2rem' }}
                 >
                     {/* Add Deck Button */}
                     <button
