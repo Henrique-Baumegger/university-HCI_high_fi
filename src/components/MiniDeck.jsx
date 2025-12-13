@@ -40,6 +40,16 @@ const MiniDeck = ({
     }, [jumpRequest, node.id, node.cards]);
 
     const cards = node.cards || [];
+
+    // Ensure currentCardIndex is valid when cards are deleted
+    useEffect(() => {
+        if (currentCardIndex >= cards.length && cards.length > 0) {
+            setCurrentCardIndex(cards.length - 1);
+        } else if (cards.length === 0 && currentCardIndex !== 0) {
+            setCurrentCardIndex(0);
+        }
+    }, [cards.length, currentCardIndex]);
+
     const currentCard = cards[currentCardIndex];
 
     const handleNext = (e) => {
@@ -179,8 +189,8 @@ const MiniDeck = ({
                             <div className="w-full h-full flex flex-col items-center justify-center mt-2 gap-2">
                                 {isEditable && cards.length > 0 ? (
                                     <textarea
-                                        value={isFlipped ? currentCard.back : currentCard.front}
-                                        onChange={(e) => onUpdateCard(currentCard.id, isFlipped ? 'back' : 'front', e.target.value)}
+                                        value={isFlipped ? (currentCard?.back || '') : (currentCard?.front || '')}
+                                        onChange={(e) => currentCard && onUpdateCard(currentCard.id, isFlipped ? 'back' : 'front', e.target.value)}
                                         className="w-full h-full text-center font-serif text-sm leading-relaxed bg-transparent border-none outline-none resize-none dark:text-white placeholder-gray-400"
                                         placeholder={isFlipped ? "Answer..." : "Question..."}
                                     />
