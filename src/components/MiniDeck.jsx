@@ -56,7 +56,7 @@ const MiniDeck = ({ node, isEditable, isSelected, isScaleExpanded, onUpdateConte
 
     return (
         <div
-            className={`relative flex items-center justify-center transition-transform duration-300 ease-in-out ${isScaleExpanded ? 'scale-[1.8] z-50' : ''}`}
+            className={`relative flex items-center justify-center transition-transform duration-300 ease-in-out ${isScaleExpanded ? 'scale-[2.0] z-50' : ''}`}
             onMouseDown={(e) => {
                 if (!isEditable) {
                     e.stopPropagation();
@@ -76,7 +76,7 @@ const MiniDeck = ({ node, isEditable, isSelected, isScaleExpanded, onUpdateConte
 
             {/* Card Container */}
             <div className="relative">
-                <div className={`border bg-white dark:bg-gray-800 w-64 h-48 flex flex-col relative transition-all duration-200 
+                <div className={`border bg-white dark:bg-gray-800 ${isScaleExpanded ? 'w-80 h-60' : 'w-64 h-48'} flex flex-col relative transition-all duration-200 
                     ${isSelected ? 'border-2 border-blue-500 shadow-xl ring-2 ring-blue-200 dark:ring-blue-900' :
                         isScaleExpanded ? 'border-emerald-400 border-2 shadow-2xl shadow-emerald-100/50 dark:shadow-emerald-900/20' : 'border-black dark:border-gray-600'}
                 `}>
@@ -89,7 +89,7 @@ const MiniDeck = ({ node, isEditable, isSelected, isScaleExpanded, onUpdateConte
 
                     {/* Card Content */}
                     <div
-                        className="flex-1 flex items-center justify-center p-6 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 relative group transition-colors overflow-hidden"
+                        className={`flex-1 flex items-center justify-center p-6 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 relative group transition-colors ${isScaleExpanded ? 'overflow-y-auto' : 'overflow-hidden'}`}
                         onClick={handleDeckClick}
                     >
                         {/* Indicators */}
@@ -159,7 +159,7 @@ const MiniDeck = ({ node, isEditable, isSelected, isScaleExpanded, onUpdateConte
                 </div>
 
                 {/* Stack effect (visual only) */}
-                <div className="absolute top-1 left-1 w-64 h-48 border border-black dark:border-gray-600 bg-white dark:bg-gray-800 -z-10 transition-colors"></div>
+                <div className={`absolute top-1 left-1 ${isScaleExpanded ? 'w-80 h-60' : 'w-64 h-48'} border border-black dark:border-gray-600 bg-white dark:bg-gray-800 -z-10 transition-colors`}></div>
             </div>
 
             {/* Right Arrow Bar */}
