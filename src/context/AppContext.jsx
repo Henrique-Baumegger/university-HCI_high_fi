@@ -149,6 +149,46 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    const exportData = () => {
+        const dataToExport = {
+            boards,
+            communityBoards,
+            userUpvotes,
+            categories,
+            theme,
+            fontSize,
+            exportDate: new Date().toISOString()
+        };
+        const jsonString = JSON.stringify(dataToExport, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `my-boards-${Date.now()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const importData = (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.boards) setBoards(data.boards);
+                if (data.communityBoards) setCommunityBoards(data.communityBoards);
+                if (data.userUpvotes) setUserUpvotes(data.userUpvotes);
+                if (data.categories) setCategories(data.categories);
+                if (data.theme) setTheme(data.theme);
+                if (data.fontSize) setFontSize(data.fontSize);
+                alert('Data imported successfully!');
+            } catch (error) {
+                alert('Error importing data. Please check the file format.');
+                console.error(error);
+            }
+        };
+        reader.readAsText(file);
+    };
+
     return (
         <AppContext.Provider value={{
             boards,
@@ -168,7 +208,9 @@ export const AppProvider = ({ children }) => {
             fontSize,
             setFontSize,
             categories,
-            addCategory
+            addCategory,
+            exportData,
+            importData
         }}>
             {children}
         </AppContext.Provider>

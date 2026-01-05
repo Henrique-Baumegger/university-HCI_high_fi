@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SettingsPopup from './SettingsPopup';
 import MiniDeck from './MiniDeck';
+import { useAppContext } from '../context/AppContext';
 
 const NavigationMenu = ({ onClose }) => {
     const navigate = useNavigate();
     const [showAbout, setShowAbout] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const { exportData, importData } = useAppContext();
+    const fileInputRef = useRef(null);
 
     const handleNavigation = (path) => {
         if (path === 'back') {
@@ -60,6 +63,44 @@ const NavigationMenu = ({ onClose }) => {
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
+
+                {/* Export */}
+                <button
+                    onClick={exportData}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white transition-colors"
+                    title="Export Data"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </button>
+
+                {/* Import */}
+                <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white transition-colors"
+                    title="Import Data"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                            importData(e.target.files[0]);
+                            e.target.value = '';
+                        }
+                    }}
+                />
 
                 {/* About */}
                 <button
